@@ -1,0 +1,41 @@
+```
+
+Open `.gitignore` in VS Code and paste this — it prevents sensitive files from being uploaded:
+```
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables — NEVER upload these
+.env
+backend/.env
+
+# React / Node
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.DS_Store
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
