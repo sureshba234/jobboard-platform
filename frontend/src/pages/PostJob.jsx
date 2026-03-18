@@ -9,7 +9,7 @@ export default function PostJob() {
   const [form, setForm] = useState({
     title: '', description: '', location: '',
     job_type: 'full_time', experience: 'entry',
-    salary_min: '', salary_max: '', skills: '', is_active: true
+    salary_min: '', salary_max: '', skills: '', is_active: true, deadline: ''
   });
   const [error,   setError]   = useState('');
   const [loading, setLoading] = useState(false);
@@ -122,6 +122,19 @@ export default function PostJob() {
             onChange={handleChange} style={inputStyle}
             placeholder="e.g. React, Python, PostgreSQL (comma separated)" />
         </div>
+        <div style={{ marginBottom: 16 }}>
+  <label>Application Deadline</label>
+  <input
+    type="date" name="deadline"
+    value={form.deadline || ''}
+    onChange={handleChange}
+    min={new Date().toISOString().split('T')[0]}
+    style={inputStyle}
+  />
+  <p style={{ margin: '4px 0 0', fontSize: 12, color: '#94a3b8' }}>
+    Leave empty for no deadline
+  </p>
+</div>
 
         <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
           <input type="checkbox" name="is_active" id="is_active"

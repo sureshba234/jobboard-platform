@@ -8,18 +8,20 @@ class JobSerializer(serializers.ModelSerializer):
     employer_name     = serializers.CharField(source='employer.company_name', read_only=True)
     employer_email    = serializers.CharField(source='employer.email',        read_only=True)
     application_count = serializers.SerializerMethodField()
-
+    is_expired        = serializers.BooleanField(read_only=True)
+    employer_id = serializers.IntegerField(source='employer.id', read_only=True)
     class Meta:
         model  = Job
         fields = [
-            'id', 'title', 'description', 'location',
-            'job_type', 'experience', 'salary_min', 'salary_max',
-            'skills', 'is_active', 'created_at', 'updated_at',
-            'employer_name', 'employer_email', 'application_count'
-        ]
+    'id', 'title', 'description', 'location',
+    'job_type', 'experience', 'salary_min', 'salary_max',
+    'skills', 'is_active', 'deadline', 'is_expired',
+    'created_at', 'updated_at',
+    'employer_name', 'employer_email', 'employer_id', 'application_count'
+]
         read_only_fields = [
             'id', 'created_at', 'updated_at',
-            'employer_name', 'employer_email'
+            'employer_name', 'employer_email', 'is_expired'
         ]
 
     def get_application_count(self, obj):
@@ -27,10 +29,13 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 class JobCreateSerializer(serializers.ModelSerializer):
+    is_expired = serializers.BooleanField(read_only=True)
+
     class Meta:
         model  = Job
         fields = [
             'id', 'title', 'description', 'location',
-            'job_type', 'experience', 'salary_min',
-            'salary_max', 'skills', 'is_active'
+            'job_type', 'experience', 'salary_min', 'salary_max',
+            'skills', 'is_active', 'deadline', 'is_expired'
         ]
+        read_only_fields = ['id', 'is_expired']

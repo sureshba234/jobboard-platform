@@ -64,6 +64,8 @@ export default function Navbar() {
             <Link to="/my-applications" style={linkStyle('/my-applications')}>
               My Applications
             </Link>
+                <Link to="/bookmarks"        style={linkStyle('/bookmarks')}>Saved Jobs</Link>
+
           </>
         )}
 

@@ -1,5 +1,3 @@
-// src/App.jsx
-
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider }              from './context/AuthContext';
 import { RoleRoute }                 from './routes/ProtectedRoute';
@@ -15,22 +13,21 @@ import CandidateDashboard from './pages/CandidateDashboard';
 import EmployerDashboard  from './pages/EmployerDashboard';
 import Apply              from './pages/Apply';
 import MyApplications     from './pages/MyApplications';
+import Bookmarks          from './pages/Bookmarks';
+import CompanyProfile     from './pages/CompanyProfile';
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        {/* Navbar appears on every page */}
         <Navbar />
-
         <Routes>
-          {/* Public */}
           <Route path="/login"    element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/jobs"     element={<Jobs />} />
           <Route path="/jobs/:id" element={<JobDetail />} />
+          <Route path="/company/:id" element={<CompanyProfile />} />
 
-          {/* Candidate */}
           <Route path="/dashboard" element={
             <RoleRoute allowedRoles={['candidate']}>
               <CandidateDashboard />
@@ -46,8 +43,12 @@ export default function App() {
               <MyApplications />
             </RoleRoute>
           }/>
+          <Route path="/bookmarks" element={
+            <RoleRoute allowedRoles={['candidate']}>
+              <Bookmarks />
+            </RoleRoute>
+          }/>
 
-          {/* Employer */}
           <Route path="/employer/dashboard" element={
             <RoleRoute allowedRoles={['employer']}>
               <EmployerDashboard />

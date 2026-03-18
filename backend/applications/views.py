@@ -10,6 +10,9 @@ from accounts.permissions import IsCandidate, IsEmployer
 from jobs.models import Job
 from .models import Application
 from .serializers import ApplicationSerializer, ApplicationStatusSerializer
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
+
 class ApplyView(APIView):
     """
     Candidate submits application with resume.
@@ -100,9 +103,7 @@ class JobApplicationsView(APIView):
         apps = Application.objects.filter(job=job).select_related('candidate')
         return Response(ApplicationSerializer(apps, many=True).data)
 
-
 class UpdateApplicationStatusView(APIView):
-    """Employer updates the status of a specific application."""
     permission_classes = [IsAuthenticated, IsEmployer]
 
     def patch(self, request, pk):
@@ -117,6 +118,30 @@ class UpdateApplicationStatusView(APIView):
         serializer = ApplicationStatusSerializer(app, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            new_status = serializer.data['status']
+
+            # Send email notification
+            try:
+                send_mail(
+                    subject=f'Application Update - {app.job.title}',
+                    message=f'''Hi {app.candidate.full_name},
+
+Your application for "{app.job.title}" at {app.job.employer.company_name} has been updated.
+
+New Status: {new_status.upper()}
+
+Login to view your applications:
+https://jobboard-platform.vercel.app/my-applications
+
+Best regards,
+JobBoard Team''',
+                    from_email=django_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[app.candidate.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

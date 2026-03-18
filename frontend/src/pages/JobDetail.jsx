@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { fetchJob } from '../api/jobsApi';
+import { fetchJob, toggleBookmark } from '../api/jobsApi';
 import { useAuth } from '../context/AuthContext';
 
 export default function JobDetail() {
@@ -10,7 +10,8 @@ export default function JobDetail() {
   const { user }      = useAuth();
   const navigate      = useNavigate();
   const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
+  const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
     fetchJob(id)
@@ -18,6 +19,15 @@ export default function JobDetail() {
       .catch(() => navigate('/jobs'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleBookmark = async () => {
+    try {
+      const res = await toggleBookmark(job.id);
+      setBookmarked(res.data.bookmarked);
+    } catch {
+      alert('Login as candidate to save jobs.');
+    }
+  };
 
   if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
   if (!job)    return <p style={{ padding: 40 }}>Job not found.</p>;
@@ -40,18 +50,36 @@ export default function JobDetail() {
           <div>
             <h1 style={{ margin: '0 0 6px', fontSize: 24 }}>{job.title}</h1>
             <p style={{ margin: '0 0 10px', color: '#666', fontSize: 14 }}>
-             {job.employer_name} - {job.location}
-            </p>
+  <Link to={`/company/${job.employer_id}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+    {job.employer_name}
+  </Link>
+  {' '}- {job.location}
+</p>
           </div>
-          {user?.role === 'candidate' && (
-            <Link to={`/apply/${job.id}`} style={{
-              padding: '10px 24px', background: '#2563eb',
-              color: '#fff', borderRadius: 8,
-              textDecoration: 'none', fontWeight: 500
-            }}>
-              Apply Now
-            </Link>
-          )}
+
+          {/* Action buttons */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {user?.role === 'candidate' && (
+              <button onClick={handleBookmark} style={{
+                padding: '10px 18px',
+                background: bookmarked ? '#fef9c3' : '#f1f5f9',
+                color: bookmarked ? '#854d0e' : '#374151',
+                border: '1px solid #ddd', borderRadius: 8,
+                cursor: 'pointer', fontSize: 14
+              }}>
+                {bookmarked ? 'Saved' : 'Save Job'}
+              </button>
+            )}
+            {user?.role === 'candidate' && (
+              <Link to={`/apply/${job.id}`} style={{
+                padding: '10px 24px', background: '#2563eb',
+                color: '#fff', borderRadius: 8,
+                textDecoration: 'none', fontWeight: 500
+              }}>
+                Apply Now
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Tags */}
@@ -70,6 +98,20 @@ export default function JobDetail() {
               {tag}
             </span>
           ))}
+
+          {/* Deadline tag */}
+          {job.deadline && (
+            <span style={{
+              background: job.is_expired ? '#fee2e2' : '#dcfce7',
+              color: job.is_expired ? '#dc2626' : '#15803d',
+              padding: '5px 14px', borderRadius: 20, fontSize: 13
+            }}>
+              {job.is_expired
+                ? `Expired - ${new Date(job.deadline).toLocaleDateString('en-IN')}`
+                : `Deadline: ${new Date(job.deadline).toLocaleDateString('en-IN')}`
+              }
+            </span>
+          )}
         </div>
 
         {/* Description */}
@@ -97,7 +139,7 @@ export default function JobDetail() {
 
         {/* Apply button at bottom */}
         {user?.role === 'candidate' && (
-          <div style={{ marginTop: 32 }}>
+          <div style={{ marginTop: 32, display: 'flex', gap: 12 }}>
             <Link to={`/apply/${job.id}`} style={{
               padding: '12px 32px', background: '#2563eb',
               color: '#fff', borderRadius: 8,
@@ -105,6 +147,15 @@ export default function JobDetail() {
             }}>
               Apply for this Job
             </Link>
+            <button onClick={handleBookmark} style={{
+              padding: '12px 24px',
+              background: bookmarked ? '#fef9c3' : '#f1f5f9',
+              color: bookmarked ? '#854d0e' : '#374151',
+              border: '1px solid #ddd', borderRadius: 8,
+              cursor: 'pointer', fontSize: 15
+            }}>
+              {bookmarked ? 'Job Saved' : 'Save for Later'}
+            </button>
           </div>
         )}
 
